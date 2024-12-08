@@ -28,12 +28,17 @@ if ($result->num_rows === 0) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    <!-- Add these inside the <head> section -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+
     <title>LALABUY | Checkout</title>
     <style>
         body {
@@ -112,81 +117,106 @@ if ($result->num_rows === 0) {
         }
     </style>
 </head>
+
 <body>
-<header>
-    <nav class="navbar navbar-expand-xl navbar-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="index.php">LALABUY</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLight" aria-controls="navbarLight" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse show" id="navbarLight">
-                <ul class="navbar-nav me-auto mb-2 mb-xl-0">
-                    <li class="nav-item"><a class="nav-link active" href="cart.php">My Cart</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="me.php">Me</a></li>
-                </ul>
-                <a href="logout.php" class="btn btn-outline-danger ms-3">Sign Out</a>
+    <header>
+        <nav class="navbar navbar-expand-xl navbar-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.php">LALABUY</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLight" aria-controls="navbarLight" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse show" id="navbarLight">
+                    <ul class="navbar-nav me-auto mb-2 mb-xl-0">
+                        <li class="nav-item"><a class="nav-link active" href="cart.php">My Cart</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="me.php">Me</a></li>
+                    </ul>
+                    <a href="logout.php" class="btn btn-outline-danger ms-3">Sign Out</a>
+                </div>
             </div>
-        </div>
-    </nav>
-</header>
+        </nav>
+    </header>
 
-<div class="container" style="margin-top: 50px;">
-    <h1>Checkout</h1>
-</div>
+    <div class="container" style="margin-top: 50px;">
+        <h1>Checkout</h1>
+    </div>
 
-<div class="container2" style="margin-top: 20px;">
-    <table class="table table-hover text-center">
-        <thead>
-            <tr>
-                <th>Product Name</th>
-                <th>Price</th>
-                <th>Image</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            $total = 0;
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($row["product_name"]) . "</td>";
-                echo "<td>$" . htmlspecialchars(number_format($row["price"],decimals:2)) . "</td>";
-                echo "<td><img src='uploads/" . htmlspecialchars($row["image"]) . "' alt='Product Image'></td>";
-                echo "</tr>";
-                $total += $row["price"];
-            }
-            ?>
-        </tbody>
-    </table>
+    <div class="container2" style="margin-top: 20px;">
+        <table class="table table-hover text-center">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Image</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $total = 0;
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr>";
+                    echo "<td>" . htmlspecialchars($row["product_name"]) . "</td>";
+                    echo "<td>$" . htmlspecialchars(number_format($row["price"], decimals: 2)) . "</td>";
+                    echo "<td><img src='uploads/" . htmlspecialchars($row["image"]) . "' alt='Product Image'></td>";
+                    echo "</tr>";
+                    $total += $row["price"];
+                }
+                ?>
+            </tbody>
+        </table>
 
-    <h3>Total: $<?php echo number_format($total, 2); ?></h3>
+        <h3>Total: $<?php echo number_format($total, 2); ?></h3>
 
-    <form action="process_checkout.php" method="POST" class="mt-4">
-        <h4>Shipping Information</h4>
-        <div class="mb-3">
-            <label for="address" class="form-label">Address</label>
-            <input type="text" name="address" id="address" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label for="address2" class="form-label">Address 2 (Optional)</label>
-            <input type="text" name="address2" id="address2" class="form-control">
-        </div>
-        <div class="mb-3">
-            <label for="zip_code" class="form-label">Zip Code</label>
-            <input type="text" name="zip_code" id="zip_code" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label for="city" class="form-label">City</label>
-            <input type="text" name="city" id="city" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label for="street" class="form-label">Street</label>
-            <input type="text" name="street" id="street" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-outline-primary">Confirm Checkout</button>
-    </form>
-</div>
+        <form action="process_checkout.php" method="POST" class="mt-4" onsubmit="setPhoneNumber();">
+            <h4>Shipping Information</h4>
+            <div class="mb-3">
+                <label for="receiver_name" class="form-label">Receiver's Name</label>
+                <input type="text" name="receiver_name" id="receiver_name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="contact_number" class="form-label">Contact Number</label>
+                <input type="tel" name="contact_number" id="contact_number" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <input type="text" name="address" id="address" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="address2" class="form-label">Address 2 (Optional)</label>
+                <input type="text" name="address2" id="address2" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="zip_code" class="form-label">Zip Code</label>
+                <input type="text" name="zip_code" id="zip_code" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="city" class="form-label">City</label>
+                <input type="text" name="city" id="city" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="street" class="form-label">Street</label>
+                <input type="text" name="street" id="street" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-outline-primary">Confirm Checkout</button>
+        </form>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
+<script>
+    // Initialize the phone input with the international phone number plugin
+    var input = document.querySelector("#contact_number");
+    var iti = intlTelInput(input, {
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.min.js", // optional, for formatting
+        separateDialCode: true // Show the country code separately
+    });
+
+    // Ensure that the full phone number is set in the field before submitting the form
+    function setPhoneNumber() {
+        var fullNumber = iti.getNumber(); // Get the number including country code
+        input.value = fullNumber; // Set the value of the input to the full phone number
+    }
+</script>
+
 </html>

@@ -12,16 +12,23 @@ $order_id = isset($_GET['order_id']) ? $_GET['order_id'] : 0;
 
 // Query to include shipping_address and tracking_number
 $sql = "SELECT o.order_id, o.total_price, o.order_date, o.status, 
-               o.shipping_address, o.tracking_number, oi.product_id, p.product_name, p.image 
+               o.shipping_address, o.tracking_number, o.receiver_name, o.contact_number, 
+               oi.product_id, p.product_name, p.image 
         FROM orders o
         JOIN order_items oi ON o.order_id = oi.order_id
         JOIN products p ON oi.product_id = p.product_id
         WHERE o.order_id = ?";
 
 $stmt = $conn->prepare($sql);
+
+if ($stmt === false) {
+    die('MySQL prepare error: ' . $conn->error);
+}
+
 $stmt->bind_param("i", $order_id);
 $stmt->execute();
 $result = $stmt->get_result();
+
 
 if ($result->num_rows === 0) {
     echo "<p>Order not found.</p>";
@@ -110,7 +117,9 @@ $order_details = $result->fetch_assoc();
         <h3>Order ID: #<?php echo htmlspecialchars($order_details['order_id']); ?></h3>
         <h4>Total Price: $<?php echo number_format($order_details['total_price'], 2); ?></h4>
         <p>Order Date: <?php echo date("F j, Y, g:i a", strtotime($order_details['order_date'])); ?></p>
-
+        <p><strong>Name:</strong> <?php echo htmlspecialchars($order_details['receiver_name']); ?></p>
+        <p><strong>Contact Number:</strong> <?php echo htmlspecialchars($order_details['contact_number']); ?></p>
+        </p>
         <h4 class="mt-4">Shipping Address</h4>
         <p class="text-center" style="font-size: 16px; font-weight: bold;">
             <?php echo nl2br(htmlspecialchars($order_details['shipping_address'])); ?>

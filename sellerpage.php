@@ -29,9 +29,10 @@ if ($result_product->num_rows == 0) {
 
 $product = $result_product->fetch_assoc();
 
-// Query to fetch orders for this product, including shipping address
+// Query to fetch orders for this product, including shipping details
 $sql_orders = "
-    SELECT o.order_id, o.total_price, o.order_date, o.status, o.tracking_number, o.shipping_address, oi.product_id
+    SELECT o.order_id, o.total_price, o.order_date, o.status, o.tracking_number, 
+           o.shipping_address, o.receiver_name, o.contact_number, oi.product_id
     FROM orders o
     JOIN order_items oi ON o.order_id = oi.order_id
     WHERE oi.product_id = ?";
@@ -116,7 +117,9 @@ $result_orders = $stmt_orders->get_result();
                             <th>Order Date</th>
                             <th>Status</th>
                             <th>Tracking Number</th>
-                            <th>Shipping Address</th> <!-- New Column for Shipping Address -->
+                            <th>Receiver Name</th>
+                            <th>Contact Number</th>
+                            <th>Shipping Address</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -132,31 +135,28 @@ $result_orders = $stmt_orders->get_result();
                                         <?php echo $order["status"]; ?>
                                     </span>
                                 </td>
-                                
                                 <td>
                                     <!-- Submit Tracking Number Update -->
                                     <form method="POST" action="update_tracking.php" class="d-inline">
                                         <input type="hidden" name="order_id" value="<?php echo $order['order_id']; ?>">
-                                        <input type="hidden" name="product_id" value="<?php echo $product_id; ?>"> <!-- Pass product_id -->
-                                        <input type="text" name="tracking_number" value="<?php echo $order['tracking_number']; ?>" class="form-control mb-2" required>
+                                        <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
+                                        <input type="text" name="tracking_number" value="<?php echo htmlspecialchars($order['tracking_number']); ?>" class="form-control mb-2" required>
                                         <button type="submit" name="submit_tracking" class="btn btn-primary btn-sm">Submit Tracking Number</button>
                                     </form>
                                 </td>
-                                <td><?php echo nl2br(htmlspecialchars($order["shipping_address"])); ?></td> <!-- Display Shipping Address -->
+                                <td><?php echo htmlspecialchars($order["receiver_name"]); ?></td>
+                                <td><?php echo htmlspecialchars($order["contact_number"]); ?></td>
+                                <td><?php echo nl2br(htmlspecialchars($order["shipping_address"])); ?></td>
                                 <td>
-                                    <!-- Shipping Update Form -->
+                                    <!-- Update Order Status -->
                                     <form method="POST" action="update_shipping.php" class="d-inline">
                                         <input type="hidden" name="order_id" value="<?php echo $order['order_id']; ?>">
-                                        <input type="hidden" name="product_id" value="<?php echo $product_id; ?>"> <!-- Pass product_id -->
-
-                                        <!-- Include the Tracking Number as a hidden field -->
-                                        <input type="hidden" name="tracking_number" value="<?php echo $order['tracking_number']; ?>"> <!-- Add this line -->
-
+                                        <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
+                                        <input type="hidden" name="tracking_number" value="<?php echo htmlspecialchars($order['tracking_number']); ?>"> <!-- Ensure tracking number persists -->
                                         <select name="status" class="form-control mb-2" required>
                                             <option value="Shipped" <?php echo ($order['status'] == 'Shipped') ? 'selected' : ''; ?>>Mark as Shipped</option>
                                             <option value="Delivered" <?php echo ($order['status'] == 'Delivered') ? 'selected' : ''; ?>>Mark as Delivered</option>
                                         </select>
-
                                         <button type="submit" name="update_order" class="btn btn-primary btn-sm btn-update">Update Status</button>
                                     </form>
                                 </td>

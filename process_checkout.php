@@ -11,6 +11,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $user_id = $_SESSION["user"];
 
     // Fetch shipping information from the form
+    $receiver_name = isset($_POST['receiver_name']) ? trim($_POST['receiver_name']) : ''; // NEW
+    $contact_number = isset($_POST['contact_number']) ? trim($_POST['contact_number']) : ''; // NEW
     $address = isset($_POST['address']) ? trim($_POST['address']) : '';
     $address2 = isset($_POST['address2']) ? trim($_POST['address2']) : '';
     $zip_code = isset($_POST['zip_code']) ? trim($_POST['zip_code']) : '';
@@ -18,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $street = isset($_POST['street']) ? trim($_POST['street']) : '';
 
     // Validate required fields
-    if (empty($address) || empty($zip_code) || empty($city) || empty($street)) {
+    if (empty($receiver_name) || empty($contact_number) || empty($address) || empty($zip_code) || empty($city) || empty($street)) {
         header("Location: checkout.php?error=Missing required fields");
         exit();
     }
@@ -50,9 +52,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Save order information in the `orders` table
         $shipping_address = "$address, $address2, $street, $city, $zip_code";
         $order_status = 'Pending';
-        $sql_order = "INSERT INTO orders (user_id, total_price, status, shipping_address) VALUES (?, ?, ?, ?)";
+        $sql_order = "INSERT INTO orders (user_id, total_price, status, shipping_address, receiver_name, contact_number) 
+                      VALUES (?, ?, ?, ?, ?, ?)"; // UPDATED
         $stmt_order = $conn->prepare($sql_order);
-        $stmt_order->bind_param("idss", $user_id, $total_price, $order_status, $shipping_address);
+        $stmt_order->bind_param("idssss", $user_id, $total_price, $order_status, $shipping_address, $receiver_name, $contact_number); // UPDATED
         $stmt_order->execute();
         $order_id = $conn->insert_id;
 
@@ -83,3 +86,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     header("Location: checkout.php?error=Invalid request.");
     exit();
 }
+?>

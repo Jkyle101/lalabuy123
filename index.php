@@ -166,42 +166,49 @@ $result = $stmt->get_result();
     ?>
 
     <table class="table table-hover text-center">
-        <thead>
-        <tr>
-            <th scope="col">Product Name</th>
-            <th scope="col">Price</th>
-            <th scope="col">Image</th>
-            <th scope="col">Description</th>
-            <th scope="col">Category</th>
-            <th scope="col"></th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                ?>
-                <tr>
-                    <td style="display:none;"><?php echo $row["product_id"]; ?></td>
-                    <td style="display:none;"><?php echo $row["user_id"]; ?></td>
-                    <td><?php echo $row["product_name"]; ?></td>
-                    <td>$<?php echo number_format($row["price"],decimals:2)  ?></td>
-                    <td><img src="uploads/<?php echo $row['image']; ?>" alt="Product Image"></td>
-                    <td><?php echo $row["description"]; ?></td>
-                    <td><?php echo $row["category"]; ?></td>
-                    <td>
-                        <a href="addtocart.php?id=<?php echo $row['product_id']; ?>" class="link-dark">
-                            <i class="fa-solid fa-cart-plus fs-5"></i> Add to Cart
-                        </a>
-                    </td>
-                </tr>
-                <?php
-            }
-        } else {
-            echo '<tr><td colspan="5">No Products to Show</td></tr>';
-        }
+    <thead>
+<tr>
+    <th scope="col">Product Name</th>
+    <th scope="col">Price</th>
+    <th scope="col">Image</th>
+    <th scope="col">Description</th>
+    <th scope="col">Category</th>
+    <th scope="col">Availability</th> <!-- New column -->
+    <th scope="col"></th>
+</tr>
+</thead>
+<tbody>
+<?php
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
         ?>
-        </tbody>
+        <tr>
+            <td style="display:none;"><?php echo $row["product_id"]; ?></td>
+            <td style="display:none;"><?php echo $row["user_id"]; ?></td>
+            <td><?php echo $row["product_name"]; ?></td>
+            <td>$<?php echo number_format($row["price"], 2); ?></td>
+            <td><img src="uploads/<?php echo $row['image']; ?>" alt="Product Image"></td>
+            <td><?php echo $row["description"]; ?></td>
+            <td><?php echo $row["category"]; ?></td>
+            <td>
+                <?php echo $row["availability"] === "sold" ? "<span class='badge bg-danger'>Sold</span>" : "<span class='badge bg-success'>Available</span>"; ?>
+            </td>
+            <td>
+                <?php if ($row["availability"] !== "sold") { ?>
+                    <a href="addtocart.php?id=<?php echo $row['product_id']; ?>" class="link-dark">
+                        <i class="fa-solid fa-cart-plus fs-5"></i> Add to Cart
+                    </a>
+                <?php } ?>
+            </td>
+        </tr>
+        <?php
+    }
+} else {
+    echo '<tr><td colspan="7">No Products to Show</td></tr>';
+}
+?>
+</tbody>
+
     </table>
 </div>
 

@@ -33,12 +33,6 @@ $result_orders = $stmt_orders->get_result();
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["delete_product"])) {
     $product_id = $_POST["product_id"];
 
-    // Optionally delete from cart items (if you want to remove the product from carts)
-    // $sql_delete_cart = "DELETE FROM cart_items WHERE product_id = ?";
-    // $stmt_delete_cart = $conn->prepare($sql_delete_cart);
-    // $stmt_delete_cart->bind_param("i", $product_id);
-    // $stmt_delete_cart->execute();
-
     // Delete product from products table
     $sql_delete_product = "DELETE FROM products WHERE product_id = ? AND user_id = ?";
     $stmt_delete_product = $conn->prepare($sql_delete_product);
@@ -48,6 +42,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["delete_product"])) {
     header("Location: me.php?msg=Product deleted successfully!");
     exit();
 }
+
+// Handle marking product as sold
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mark_as_sold"])) {
+    $product_id = $_POST["product_id"];
+
+    // Update the availability of the product
+    $sql_mark_as_sold = "UPDATE products SET availability = 'sold' WHERE product_id = ? AND user_id = ?";
+    $stmt_mark_as_sold = $conn->prepare($sql_mark_as_sold);
+
+    // Check if the query prepared successfully
+    if (!$stmt_mark_as_sold) {
+        die("Query preparation failed: " . $conn->error);
+    }
+
+    $stmt_mark_as_sold->bind_param("ii", $product_id, $user_id);
+    $stmt_mark_as_sold->execute();
+
+    // Redirect to refresh the page
+    header("Location: me.php?msg=Product marked as sold!");
+    exit();
+}
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["mark_as_sold"])) {
+    $product_id = $_POST["product_id"];
+
+    // Update the availability of the product
+    $sql_mark_as_sold = "UPDATE products SET availability = 'sold' WHERE product_id = ? AND user_id = ?";
+    $stmt_mark_as_sold = $conn->prepare($sql_mark_as_sold);
+
+    // Check if the query prepared successfully
+    if (!$stmt_mark_as_sold) {
+        die("Query preparation failed: " . $conn->error);
+    }
+
+    $stmt_mark_as_sold->bind_param("ii", $product_id, $user_id);
+    $stmt_mark_as_sold->execute();
+
+    // Redirect to refresh the page
+    header("Location: me.php?msg=Product marked as sold!");
+    exit();
+}
+
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["update_order"])) {
     $order_id = $_POST["order_id"];
@@ -111,6 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["update_order"])) {
                     <th scope="col">Category</th>
                     <th scope="col">Description</th>
                     <th scope="col">Image</th>
+                    <th scope="col">Availability</th>
                     <th scope="col">Action</th>
                 </tr>
             </thead>
@@ -125,11 +161,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["update_order"])) {
                         <td>
                             <img src="uploads/<?php echo $product['image']; ?>" alt="Product Image" style="max-width: 100px; max-height: 100px;">
                         </td>
+                        <td><?php echo $product["availability"] ?? 'available'; ?></td>
                         <td>
                             <!-- Delete Button -->
                             <form method="POST" onsubmit="return confirm('Are you sure you want to delete this product?');">
                                 <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
                                 <button type="submit" name="delete_product" class="btn btn-danger">Delete</button>
+                            </form>
+                            <!-- Mark as Sold Button -->
+                            <form method="POST" style="margin-top: 10px;">
+                                <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
+                                <button type="submit" name="mark_as_sold" class="btn btn-warning">Mark as Sold</button>
                             </form>
                         </td>
                     </tr>
